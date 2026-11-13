@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#236349">
+  <meta name="description" content="随心贷额度申请交互演示。包含个人信息填写、担保人信息填写及18位身份证号校验。">
+  <title>随心贷 · 让计划，从容发生</title>
+  <style>
+    :root { --green:#236349; --green-dark:#174a35; --ink:#1e342b; --muted:#7a847d; --line:#e4e8df; --cream:#f6f7f0; --error:#b33d35; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    body { margin:0; color:var(--ink); background:var(--cream); font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; }
+    button,input { font:inherit; }
+    button { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    button:focus-visible { outline:3px solid #99bd83; outline-offset:5px; }
+    .site { width:min(1160px,calc(100% - 96px)); margin:auto; }
+    header { height:110px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:12px; font-size:23px; font-weight:700; letter-spacing:2px; }
+    .brand-symbol { width:36px; height:36px; }
+    .header-note { display:flex; align-items:center; gap:8px; font-size:12px; color:#6c786e; letter-spacing:1px; }
+    .dot { width:6px; height:6px; border-radius:50%; background:#a2b669; }
+    main { min-height:calc(100svh - 192px); display:grid; grid-template-columns:1fr 490px; gap:78px; align-items:center; padding:55px 0 60px; }
+    .intro { position:relative; padding-bottom:8px; }
+    .eyebrow { display:flex; align-items:center; gap:12px; color:#66776a; font-size:11px; font-weight:600; letter-spacing:2px; }
+    .eyebrow::before { content:""; width:28px; height:1px; background:#7d9575; }
+    h1 { font-size:62px; line-height:1.22; letter-spacing:5px; margin:26px 0 16px; font-weight:600; }
+    .intro-title { margin:0; font-size:34px; font-weight:400; letter-spacing:2px; line-height:1.6; }
+    .intro-title span { color:var(--green); }
+    .intro-copy { margin:21px 0 0; color:var(--muted); font-size:14px; line-height:1.9; letter-spacing:.5px; }
+    .journey { display:flex; align-items:center; gap:0; margin:52px 0 0; padding:0; list-style:none; }
+    .journey li { position:relative; display:flex; align-items:center; gap:7px; color:#939c91; font-size:11px; white-space:nowrap; }
+    .journey li:not(:last-child)::after { content:""; width:19px; height:1px; margin:0 10px; background:#d7ddcf; }
+    .step-number { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; border:1px solid #d6ddce; font-size:10px; }
+    .journey li.active { color:var(--green); font-weight:600; }
+    .journey li.active .step-number { background:var(--green); color:white; border-color:var(--green); }
+    .journey li.done .step-number { background:#e0e8d8; color:var(--green); border-color:#e0e8d8; }
+    .botanical { margin-top:45px; width:150px; height:75px; opacity:.85; }
+    .panel { border:1px solid #e6eadd; border-radius:28px; background:#fff; box-shadow:0 16px 48px -24px #31452d30; overflow:hidden; min-height:510px; }
+    .screen { min-height:510px; padding:34px 36px 30px; animation:enter .3s ease both; }
+    .screen:focus { outline:none; }
+    @keyframes enter { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+    .card-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .small-label { font-size:11px; letter-spacing:2px; color:var(--muted); }
+    .pill { display:flex; align-items:center; gap:5px; background:#f0f4e8; color:#5d7152; font-size:10px; border-radius:20px; padding:6px 10px; }
+    .offer-label { font-size:16px; font-weight:400; margin:39px 0 6px; color:#667367; }
+    .amount { display:flex; align-items:baseline; color:var(--green); line-height:1; margin-left:-4px; }
+    .amount strong { font-size:94px; letter-spacing:-6px; font-weight:600; font-family:Arial,"Microsoft YaHei",sans-serif; }
+    .amount span { font-size:26px; margin-left:10px; }
+    .offer-caption { font-size:12px; color:#90988d; margin:18px 0 27px; }
+    .divider { height:1px; background:var(--line); }
+    .quick-info { display:grid; grid-template-columns:1fr 1fr; margin:23px 0 29px; }
+    .quick-info > div { display:flex; align-items:center; gap:9px; font-size:12px; color:#69796b; }
+    .quick-info > div+div { border-left:1px solid var(--line); padding-left:26px; }
+    .mini-icon { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.5; }
+    .primary { display:flex; align-items:center; justify-content:center; gap:13px; width:100%; min-height:55px; border:0; border-radius:12px; background:var(--green); color:#fff; font-size:15px; font-weight:500; letter-spacing:2px; transition:background .18s,transform .18s; }
+    .primary:hover { background:var(--green-dark); }
+    .primary:active { transform:translateY(1px); }
+    .primary svg { width:19px; height:19px; }
+    .privacy-note { display:flex; align-items:center; justify-content:center; gap:5px; font-size:10px; color:#91988b; margin:15px 0 0; line-height:1.7; }
+    .privacy-note svg { width:12px; height:12px; flex:none; }
+    .back { display:inline-flex; align-items:center; gap:5px; margin:0 0 24px -3px; padding:3px; border:0; background:transparent; color:#748173; font-size:12px; min-height:28px; }
+    .back svg { width:16px; height:16px; }
+    .form-meta { display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+    .form-meta .small-label { font-size:10px; }
+    .fraction { color:#8e9988; font-size:10px; }
+    h2 { margin:0; font-size:26px; font-weight:600; letter-spacing:1px; line-height:1.4; outline:none; }
+    .subtitle { font-size:12px; color:#899282; line-height:1.7; margin:10px 0 25px; }
+    .field { margin-bottom:17px; }
+    label { display:block; font-size:12px; margin:0 0 9px; color:#53614f; }
+    input { width:100%; height:51px; border:1px solid #e0e5db; border-radius:10px; padding:0 15px; background:#fafbf8; color:var(--ink); outline:none; font-size:14px; transition:border-color .15s,box-shadow .15s; }
+    input::placeholder { color:#b0b6aa; font-size:12px; }
+    input:focus { border-color:#6c9670; box-shadow:0 0 0 3px #2363490c; background:white; }
+    input[aria-invalid="true"] { border-color:#c8695d; }
+    .field-error { margin:7px 0 0; font-size:11px; color:var(--error); line-height:1.5; }
+    form .primary { margin-top:25px; }
+    .state-screen { display:flex; flex-direction:column; align-items:center; text-align:center; justify-content:center; }
+    .state-illustration { width:102px; height:102px; display:grid; place-items:center; border-radius:50%; background:#f0f4e9; margin-bottom:28px; position:relative; }
+    .spinner { width:65px; height:65px; border:1.5px solid #d5dfcc; border-top-color:var(--green); border-right-color:var(--green); border-radius:50%; animation:spin 1.2s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner-core { position:absolute; width:30px; height:30px; color:var(--green); }
+    .state-screen h2 { font-size:22px; letter-spacing:.5px; }
+    .state-screen .subtitle { margin:13px 0 0; }
+    .loading-dots { display:flex; gap:7px; margin-top:37px; }
+    .loading-dots i { width:5px; height:5px; background:#76916a; border-radius:50%; animation:pulse 1.2s infinite; }
+    .loading-dots i:nth-child(2) { animation-delay:.2s; }
+    .loading-dots i:nth-child(3) { animation-delay:.4s; }
+    @keyframes pulse { 50% { opacity:.25; } }
+    .result-icon { width:44px; height:44px; color:var(--green); }
+    .result-title { max-width:330px; line-height:1.65; }
+    .result-screen .primary { margin-top:35px; }
+    .text-button { background:none; border:0; padding:12px 20px; margin-top:8px; font-size:12px; color:#7f8a78; min-height:44px; }
+    footer { min-height:82px; border-top:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:15px; color:#9aA192; font-size:10px; letter-spacing:.5px; }
+    .footer-right { font-size:9px; letter-spacing:1.5px; }
+    @media (min-width:1500px) { main { gap:130px; } }
+    @media (max-width:1050px) { .site { width:calc(100% - 64px); } main { gap:35px; grid-template-columns:1fr 450px; } h1 { font-size:51px; } .intro-title { font-size:27px; } .journey { flex-wrap:wrap; row-gap:14px; } .journey li:not(:last-child)::after { width:10px; margin:0 6px; } }
+    @media (max-width:800px) { .site { width:min(490px,calc(100% - 36px)); } header { height:78px; border-bottom:0; } .brand { font-size:20px; gap:9px; } .brand-symbol { width:30px; height:30px; } .header-note { font-size:10px; letter-spacing:0; } main { display:flex; flex-direction:column; gap:26px; padding:19px 0 30px; min-height:calc(100svh - 146px); align-items:stretch; } .intro { padding-bottom:0; } .eyebrow,.intro-copy,.botanical { display:none; } h1 { display:none; } .intro-title { font-size:26px; letter-spacing:1px; line-height:1.4; } .intro-title br { display:none; } .journey { margin:22px 0 0; flex-wrap:nowrap; justify-content:space-between; } .journey li { font-size:10px; gap:5px; } .journey li:not(:last-child)::after { margin:0 5px; width:8px; } .step-number { width:18px; height:18px; font-size:9px; } .panel,.screen { min-height:495px; } .panel { border-radius:22px; } .screen { padding:30px 27px 27px; } .offer-label { margin-top:36px; } footer { min-height:68px; font-size:9px; } .footer-right { display:none; } }
+    @media (max-width:370px) { .site { width:calc(100% - 26px); } .screen { padding:28px 21px 25px; } .intro-title { font-size:23px; } .journey li { font-size:9px; gap:4px; } .journey li:not(:last-child)::after { width:4px; margin:0 3px; } .quick-info > div+div { padding-left:15px; } .amount strong { font-size:86px; } h2 { font-size:24px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; } }
+  </style>
+</head>
+<body>
+  <div class="site">
+    <header>
+      <div class="brand" aria-label="随心贷">
+        <svg class="brand-symbol" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="13" fill="#236349"/><path d="M26.5 12.5c-2.8-3-9.8-2.2-11.1 1.2-2.3 6.2 11.8 4.3 9.3 10.7-1.4 3.6-8.2 4.1-11.3 1.5" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><path d="m25.1 9.5 1.9 3.6-3.9.6" fill="none" stroke="#bfd68c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>随心贷</span>
+      </div>
+      <div class="header-note"><span class="dot"></span>额度申请</div>
+    </header>
+    <main>
+      <aside class="intro" aria-label="申请步骤">
+        <div class="eyebrow">A LITTLE MORE POSSIBILITY</div>
+        <h1>随心贷</h1>
+        <p class="intro-title">让计划，<br><span>从容发生。</span></p>
+        <p class="intro-copy">为生活的下一步，<br>多准备一种可能。</p>
+        <ol class="journey" aria-label="额度申请进度">
+          <li data-step="0" class="active" aria-current="step"><span class="step-number">1</span>查看额度</li>
+          <li data-step="1"><span class="step-number">2</span>个人信息</li>
+          <li data-step="2"><span class="step-number">3</span>担保人</li>
+          <li data-step="3"><span class="step-number">4</span>额度结果</li>
+        </ol>
+        <svg class="botanical" viewBox="0 0 180 90" fill="none" aria-hidden="true"><path d="M16 79h144M67 79c19-13 32-31 43-62M82 65c-7-18-6-34 0-43 14 12 14 27 0 43Z" stroke="#bdc9ab" stroke-width="1.5"/><path d="M95 48c0-18 5-32 18-39 7 19 0 34-18 39ZM80 66c16-16 32-20 48-15-8 16-25 22-48 15Z" fill="#e3e8d7" stroke="#bdc9ab" stroke-width="1.5"/><path d="M109 30c14-9 27-10 36-5-8 12-20 14-36 5Z" stroke="#bdc9ab" stroke-width="1.5"/></svg>
+      </aside>
+      <div class="panel">
+        <section class="screen" id="home" aria-labelledby="home-title">
+          <div class="card-top"><span class="small-label">属于你的生活可能</span><span class="pill"><span class="dot"></span>额度计算</span></div>
+          <h2 id="home-title" class="offer-label">最高可借<span class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0">100万</span></h2>
+          <div class="amount" aria-hidden="true"><strong>100</strong><span>万</span></div>
+          <p class="offer-caption">从一个小计划，到生活的新篇章</p>
+          <div class="divider"></div>
+          <div class="quick-info">
+            <div><svg class="mini-icon" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="2.5" width="12" height="15" rx="2"/><path d="M7 6h6M7 9h6m-6 3h3"/></svg>在线填写信息</div>
+            <div><svg class="mini-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 5v5l3 2"/></svg>简单四步体验</div>
+          </div>
+          <button class="primary" id="start" type="button">查看额度<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+        </section>
+        <section class="screen" id="personal" aria-labelledby="personal-title" hidden>
+          <button class="back" type="button" data-back="home"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m11 5-5 5 5 5M6 10h10"/></svg>返回首页</button>
+          <div class="form-meta"><span class="small-label">PERSONAL INFORMATION</span><span class="fraction">01 / 02</span></div>
+          <h2 id="personal-title" tabindex="-1">填写个人信息</h2>
+          <p class="subtitle">请填写您的姓名与18位身份证号码</p>
+          <form id="personal-form" novalidate autocomplete="off">
+            <div class="field"><label for="personal-name">姓名</label><input id="personal-name" name="personal-name" placeholder="请输入您的姓名" required aria-describedby="personal-name-error" spellcheck="false"><p class="field-error" id="personal-name-error" hidden></p></div>
+            <div class="field"><label for="personal-id">身份证号</label><input id="personal-id" name="personal-id" placeholder="请输入18位身份证号码" required aria-describedby="personal-id-error" autocapitalize="characters" spellcheck="false"><p class="field-error" id="personal-id-error" hidden></p></div>
+            <button class="primary" type="submit">下一步<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+          </form>
+        </section>
+        <section class="screen" id="guarantor" aria-labelledby="guarantor-title" hidden>
+          <button class="back" type="button" data-back="personal"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m11 5-5 5 5 5M6 10h10"/></svg>返回上一步</button>
+          <div class="form-meta"><span class="small-label">GUARANTOR INFORMATION</span><span class="fraction">02 / 02</span></div>
+          <h2 id="guarantor-title" tabindex="-1">请提供担保人</h2>
+          <p class="subtitle">请填写担保人的姓名与18位身份证号码</p>
+          <form id="guarantor-form" novalidate autocomplete="off">
+            <div class="field"><label for="guarantor-name">担保人姓名</label><input id="guarantor-name" name="guarantor-name" placeholder="请输入担保人姓名" required aria-describedby="guarantor-name-error" spellcheck="false"><p class="field-error" id="guarantor-name-error" hidden></p></div>
+            <div class="field"><label for="guarantor-id">身份证号码</label><input id="guarantor-id" name="guarantor-id" placeholder="请输入18位身份证号码" required aria-describedby="guarantor-id-error" autocapitalize="characters" spellcheck="false"><p class="field-error" id="guarantor-id-error" hidden></p></div>
+            <button class="primary" type="submit">下一步<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+          </form>
+        </section>
+        <section class="screen state-screen" id="calculating" aria-labelledby="calculating-title" aria-busy="true" hidden>
+          <div class="state-illustration" aria-hidden="true"><div class="spinner"></div><svg class="spinner-core" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 9h12M16 6v20M10 22h12m-10-9 4 4 4-4"/></svg></div>
+          <h2 id="calculating-title" tabindex="-1">正在计算您的额度</h2>
+          <p class="subtitle">请稍候，即将展示本次演示结果</p>
+          <div class="loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+        </section>
+        <section class="screen state-screen result-screen" id="result" aria-labelledby="result-title" hidden>
+          <div class="state-illustration" aria-hidden="true"><svg class="result-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="10" y="7" width="25" height="33" rx="4"/><path d="M17 15h11m-11 6h7m-7 6h6"/><circle cx="34" cy="33" r="8" fill="#f0f4e9"/><path d="M34 28v6m0 3v.5"/></svg></div>
+          <h2 class="result-title" id="result-title" tabindex="-1">担保人信息不足，请提供新的担保人</h2>
+          <p class="subtitle">请更换担保人后，重新提交信息</p>
+          <button class="primary" id="retry" type="button">更换担保人<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></button>
+          <button class="text-button" id="restart" type="button">返回首页</button>
+        </section>
+      </div>
+    </main>
+    <footer><span>随心贷 · 让计划，从容发生</span></footer>
+    <div id="announcement" role="status" aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);"></div>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const $ = id => document.getElementById(id);
+      const screens = ['home', 'personal', 'guarantor', 'calculating', 'result'];
+      const stepMap = { home: 0, personal: 1, guarantor: 2, calculating: 3, result: 3 };
+      let currentScreen = 'home';
+      let calculationTimer = null;
+
+      function showScreen(id) {
+        if (!screens.includes(id)) return;
+        clearTimeout(calculationTimer);
+        calculationTimer = null;
+        currentScreen = id;
+        screens.forEach(screen => { $(screen).hidden = screen !== id; });
+        document.querySelectorAll('[data-step]').forEach(item => {
+          const step = Number(item.dataset.step);
+          item.classList.toggle('active', step === stepMap[id]);
+          item.classList.toggle('done', step < stepMap[id]);
+          if (step === stepMap[id]) item.setAttribute('aria-current', 'step');
+          else item.removeAttribute('aria-current');
+        });
+        const heading = $(id).querySelector('h2');
+        if (heading && id !== 'home') heading.focus({ preventScroll: true });
+        if (id === 'home') $('start').focus({ preventScroll: true });
+        if (window.matchMedia('(max-width: 800px)').matches) {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+        $('announcement').textContent = id === 'calculating' || id === 'result' ? heading.textContent : '';
+      }
+
+      function errorMessage(input) {
+        const value = input.value.trim();
+        if (input.id.endsWith('-name')) {
+          return value ? '' : (input.id.startsWith('guarantor') ? '请输入担保人姓名' : '请输入姓名');
+        }
+        return /^\d{17}[\dXx]$/.test(value) ? '' : '请输入正确的身份证号';
+      }
+
+      function validateField(input) {
+        const message = errorMessage(input);
+        const error = $(input.id + '-error');
+        error.textContent = message;
+        error.hidden = !message;
+        input.setAttribute('aria-invalid', message ? 'true' : 'false');
+        return !message;
+      }
+
+      function validateForm(form) {
+        let firstInvalid = null;
+        form.querySelectorAll('input').forEach(input => {
+          if (!validateField(input) && !firstInvalid) firstInvalid = input;
+        });
+        if (firstInvalid) {
+          firstInvalid.focus();
+          $('announcement').textContent = $(firstInvalid.id + '-error').textContent;
+          return false;
+        }
+        form.querySelectorAll('input').forEach(input => {
+          input.value = input.id.endsWith('-id') ? input.value.trim().toUpperCase() : input.value.trim();
+        });
+        return true;
+      }
+
+      function resetForm(form) {
+        form.reset();
+        form.querySelectorAll('input').forEach(input => input.removeAttribute('aria-invalid'));
+        form.querySelectorAll('.field-error').forEach(error => { error.hidden = true; error.textContent = ''; });
+      }
+
+      document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          if (input.getAttribute('aria-invalid') === 'true') validateField(input);
+        });
+      });
+      $('start').addEventListener('click', () => showScreen('personal'));
+      document.querySelectorAll('[data-back]').forEach(button => {
+        button.addEventListener('click', () => showScreen(button.dataset.back));
+      });
+      $('personal-form').addEventListener('submit', event => {
+        event.preventDefault();
+        if (currentScreen === 'personal' && validateForm(event.currentTarget)) showScreen('guarantor');
+      });
+      $('guarantor-form').addEventListener('submit', event => {
+        event.preventDefault();
+        if (currentScreen !== 'guarantor' || !validateForm(event.currentTarget)) return;
+        showScreen('calculating');
+        calculationTimer = setTimeout(() => {
+          if (currentScreen === 'calculating') showScreen('result');
+        }, 2000);
+      });
+      $('retry').addEventListener('click', () => {
+        resetForm($('guarantor-form'));
+        showScreen('guarantor');
+      });
+      $('restart').addEventListener('click', () => {
+        resetForm($('personal-form'));
+        resetForm($('guarantor-form'));
+        showScreen('home');
+      });
+    })();
+  </script>
+</body>
+</html>
